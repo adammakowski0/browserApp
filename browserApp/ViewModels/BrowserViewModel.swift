@@ -16,21 +16,19 @@ class BrowserViewModel: ObservableObject{
     
     @Published var webView = WebView()
     
-    @Published var isToolBarHidden: Bool = false
-    
-    @Published var showSettingsView = false
-    
     @Published var websitesHistoryList: [WebsiteModel] = []
     
     @Published var savedEntities: [WebsiteEntity] = []
-    
-    @Published var backgroundColor: UIColor = .white
     
     @Published var isLoading = false
     
     @Published var loadingProgress = 0.0
     
     @Published var isToolbarHidden = false
+    
+    @Published var keyboardHeight: CGFloat = 0
+    
+    @Published var searchBarFocused: Bool = false
     
     @AppStorage("saveHistory") var saveBrowserHistory = true
     @AppStorage("websiteURL") var websiteURL = "https://www.google.com/"
@@ -152,11 +150,14 @@ struct WebView: UIViewRepresentable {
             let offset = scrollView.contentOffset.y
             let scrollDirection = offset - lastOffset
             
+            parent.browserViewModel.searchBarFocused = false
+            parent.browserViewModel.keyboardHeight = 0
+            
             if scrollDirection > 10 {
                 withAnimation {
                     parent.browserViewModel.isToolbarHidden = true
                 }
-            } else if scrollDirection < 0 {
+            } else if scrollDirection < -2 {
                 withAnimation {
                     parent.browserViewModel.isToolbarHidden = false
                 }

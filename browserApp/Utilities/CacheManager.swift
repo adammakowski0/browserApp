@@ -10,7 +10,7 @@ import SwiftUI
 
 class CacheManager {
     static let instance = CacheManager()
-//    private init() {}
+    private init() {}
     
     var cache: NSCache<NSString, UIImage> = {
         var cache = NSCache<NSString, UIImage>()

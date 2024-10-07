@@ -32,6 +32,7 @@ struct HistoryView: View {
                                 Text(website.title)
                                     .font(.title3)
                                     .frame(maxWidth: .infinity, alignment: .leading)
+                                    .lineLimit(2)
                                 
                                 Text(website.url)
                                     .font(.subheadline)

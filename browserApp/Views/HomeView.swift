@@ -16,6 +16,8 @@ struct HomeView: View {
     
     @State var showOptions = false
     
+    @State var showMenuView: Bool = false
+    
     var body: some View {
         
         ZStack (alignment: .bottom){
@@ -23,8 +25,7 @@ struct HomeView: View {
             Color("backgroundColor").ignoresSafeArea()
             
             webView
-            
-                .sheet(isPresented: $vm.showSettingsView, content: {
+                .sheet(isPresented: $showMenuView, content: {
                     SheetView()
                         .presentationDetents([.fraction(0.7), .fraction(0.99)])
                         .presentationBackground(.thinMaterial)
@@ -61,12 +62,10 @@ extension HomeView {
     }
     
     private var bottomBar: some View {
-        
-        
         ZStack(alignment: .bottomLeading) {
             if showOptions{
                 MenuButtonView(
-                    showMenu: $vm.showSettingsView,
+                    showMenu: $showMenuView,
                     showOptions: $showOptions,
                     sharedURL: vm.websiteURL)
                 .frame(maxWidth: 0, alignment: .bottomLeading)
@@ -74,7 +73,6 @@ extension HomeView {
                 .offset(x: 0, y: -65)
                 .padding()
                 .transition(.scale)
-                
             }
             ZStack{
                 
@@ -86,10 +84,9 @@ extension HomeView {
                 HStack {
                     
                     Button(action: {
-                        withAnimation {
+                        withAnimation(.easeInOut(duration: 0.2)) {
                             showOptions.toggle()
                         }
-                        
                         
                     }, label: {
                         Image(systemName: "arrow.up")
@@ -126,9 +123,10 @@ extension HomeView {
                             vm.loadURL()
                             searchBarFocused = false
                         }
-                        .padding(.trailing, searchBarFocused ? 0 : 20)
+                        .padding(.trailing,
+                                 vm.keyboardHeight >= 0 || searchBarFocused ? 10 : 0)
                     
-                    if searchBarFocused{
+                    if vm.keyboardHeight > 0 || searchBarFocused{
                         Button(action: {vm.websiteURL = ""}, label: {
                             Image(systemName: "x.circle.fill")
                                 .font(.title3)
@@ -139,19 +137,45 @@ extension HomeView {
                     }
                 }
             }
+            .onAppear { searchBarFocused = vm.searchBarFocused }
+            .onChange(of: searchBarFocused) { vm.searchBarFocused = $0 }
+            .onChange(of: vm.searchBarFocused) { searchBarFocused = $0 }
             .padding(.vertical, 25)
             .padding(.horizontal, 20)
             .frame(height: 100)
-            
         }
-        .animation(.easeInOut(duration: 0.3), value: searchBarFocused)
-        .offset(y: searchBarFocused ? -330 : 0)
+        .keyboardHeight($vm.keyboardHeight)
+        .animation(.easeInOut(duration: 0.2), value: vm.keyboardHeight)
+        .offset(y: -vm.keyboardHeight)
+    }
+}
 
-        
+struct KeyboardProvider: ViewModifier {
+    
+    var keyboardHeight: Binding<CGFloat>
+    
+    func body(content: Content) -> some View {
+        content
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification),
+                       perform: { notification in
+                guard let userInfo = notification.userInfo,
+                      let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+                
+                self.keyboardHeight.wrappedValue = keyboardRect.height
+                
+            }).onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification),
+                         perform: { _ in
+                self.keyboardHeight.wrappedValue = 0
+            })
     }
 }
 
 
+public extension View {
+    func keyboardHeight(_ state: Binding<CGFloat>) -> some View {
+        self.modifier(KeyboardProvider(keyboardHeight: state))
+    }
+}
 
 #Preview {
     HomeView()
