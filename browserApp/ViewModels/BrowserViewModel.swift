@@ -16,6 +16,8 @@ class BrowserViewModel: ObservableObject{
     
     @Published var webView = WebView()
     
+    @Published var isToolBarHidden: Bool = false
+    
     @Published var showSettingsView = false
     
     @Published var websitesHistoryList: [WebsiteModel] = []
@@ -138,11 +140,28 @@ struct WebView: UIViewRepresentable {
         self.webView = WKWebView()
     }
     
-    class Coordinator: NSObject, WKNavigationDelegate {
+    class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate {
         var parent: WebView
+        private var lastOffset: CGFloat = 0.0
         
         init(parent: WebView) {
             self.parent = parent
+        }
+        
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            let offset = scrollView.contentOffset.y
+            let scrollDirection = offset - lastOffset
+            
+            if scrollDirection > 10 {
+                withAnimation {
+                    parent.browserViewModel.isToolbarHidden = true
+                }
+            } else if scrollDirection < 0 {
+                withAnimation {
+                    parent.browserViewModel.isToolbarHidden = false
+                }
+            }
+            lastOffset = offset
         }
         
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
@@ -150,7 +169,8 @@ struct WebView: UIViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            
+            webView.scrollView.delegate = self
+            webView.scrollView.bounces = false
             let title = webView.title ?? "No title"
             let host = webView.url?.host() ?? ""
 

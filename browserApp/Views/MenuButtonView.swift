@@ -50,7 +50,7 @@ struct MenuButtonView: View {
                 }
             }
             .padding()
-            .background(.thickMaterial)
+            .background(.thinMaterial)
             .cornerRadius(15)
             .shadow(radius: 5)
 

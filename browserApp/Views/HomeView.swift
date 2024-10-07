@@ -51,7 +51,10 @@ extension HomeView {
                     }
                 })
                 .overlay(alignment: .bottom) {
-                    bottomBar
+                    if !vm.isToolbarHidden{
+                        bottomBar
+                            .transition(.move(edge: .bottom))
+                    }
                 }
         }
         .ignoresSafeArea(edges: .bottom)
@@ -128,7 +131,8 @@ extension HomeView {
                     if searchBarFocused{
                         Button(action: {vm.websiteURL = ""}, label: {
                             Image(systemName: "x.circle.fill")
-                                .foregroundStyle(.black)
+                                .font(.title3)
+                                .tint(.primary)
                         })
                         .transition(AnyTransition.asymmetric(insertion: .opacity.animation(.easeInOut(duration: 0.1).delay(0.25)), removal: .opacity.animation(.easeInOut(duration: 0.01))))
                         .padding(.trailing)
