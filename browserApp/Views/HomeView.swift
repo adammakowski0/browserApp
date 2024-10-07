@@ -14,10 +14,6 @@ struct HomeView: View {
     
     @FocusState var searchBarFocused: Bool
     
-    @State var showOptions = false
-    
-    @State var showMenuView: Bool = false
-    
     var body: some View {
         
         ZStack (alignment: .bottom){
@@ -25,7 +21,7 @@ struct HomeView: View {
             Color("backgroundColor").ignoresSafeArea()
             
             webView
-                .sheet(isPresented: $showMenuView, content: {
+                .sheet(isPresented: $vm.showMenu, content: {
                     SheetView()
                         .presentationDetents([.fraction(0.7), .fraction(0.99)])
                         .presentationBackground(.thinMaterial)
@@ -55,6 +51,8 @@ extension HomeView {
                     if !vm.isToolbarHidden{
                         bottomBar
                             .transition(.move(edge: .bottom))
+                            .padding(.bottom, 5)
+                            .frame(maxWidth: 700) // for iPad
                     }
                 }
         }
@@ -63,10 +61,10 @@ extension HomeView {
     
     private var bottomBar: some View {
         ZStack(alignment: .bottomLeading) {
-            if showOptions{
+            if vm.showOptions{
                 MenuButtonView(
-                    showMenu: $showMenuView,
-                    showOptions: $showOptions,
+                    showMenu: $vm.showMenu,
+                    showOptions: $vm.showOptions,
                     sharedURL: vm.websiteURL)
                 .frame(maxWidth: 0, alignment: .bottomLeading)
                 .zIndex(1.0)
@@ -85,13 +83,13 @@ extension HomeView {
                     
                     Button(action: {
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            showOptions.toggle()
+                            vm.showOptions.toggle()
                         }
                         
                     }, label: {
                         Image(systemName: "arrow.up")
                             .font(.title3)
-                            .fontWeight(.semibold)
+                            .fontWeight(.black)
                             .fontDesign(.rounded)
                             .foregroundColor(.primary)
                             .padding(5)
@@ -101,7 +99,7 @@ extension HomeView {
                                     .shadow(radius: 5)
                             )
                             .rotationEffect(Angle(
-                                degrees: showOptions ? -180 : 0))
+                                degrees: vm.showOptions ? -180 : 0))
                     })
                     .padding(.leading)
                     

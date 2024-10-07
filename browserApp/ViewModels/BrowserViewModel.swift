@@ -30,6 +30,10 @@ class BrowserViewModel: ObservableObject{
     
     @Published var searchBarFocused: Bool = false
     
+    @Published var showMenu: Bool = false
+    
+    @Published var showOptions = false
+    
     @AppStorage("saveHistory") var saveBrowserHistory = true
     @AppStorage("websiteURL") var websiteURL = "https://www.google.com/"
     @AppStorage("urlHost") var urlHost = "www.google.pl"
@@ -149,15 +153,17 @@ struct WebView: UIViewRepresentable {
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let offset = scrollView.contentOffset.y
             let scrollDirection = offset - lastOffset
-            
+
             parent.browserViewModel.searchBarFocused = false
             parent.browserViewModel.keyboardHeight = 0
             
-            if scrollDirection > 10 {
+            if scrollDirection > 5 {
                 withAnimation {
+                    parent.browserViewModel.showMenu = false
+                    parent.browserViewModel.showOptions = false
                     parent.browserViewModel.isToolbarHidden = true
                 }
-            } else if scrollDirection < -2 {
+            } else if scrollDirection < -5 {
                 withAnimation {
                     parent.browserViewModel.isToolbarHidden = false
                 }
@@ -166,6 +172,8 @@ struct WebView: UIViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            webView.scrollView.delegate = self
+            webView.scrollView.bounces = false
             self.parent.browserViewModel.isLoading = true
         }
         
