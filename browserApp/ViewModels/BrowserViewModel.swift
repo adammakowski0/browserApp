@@ -34,6 +34,8 @@ class BrowserViewModel: ObservableObject{
     
     @Published var showOptions = false
     
+    @Published var refresh: Bool = false
+    
     @AppStorage("saveHistory") var saveBrowserHistory = true
     @AppStorage("websiteURL") var websiteURL = "https://www.google.com/"
     @AppStorage("urlHost") var urlHost = "www.google.pl"
@@ -128,6 +130,26 @@ class BrowserViewModel: ObservableObject{
             container.viewContext.delete(entity)
         }
         saveData()
+    }
+    
+    func refreshButtonAction(){
+        if searchBarFocused {
+            websiteURL = ""
+        }
+        else {
+            loadURL()
+            if #available(iOS 17.0, *) {
+                withAnimation {
+                    self.refresh = true
+                } completion: {
+                    self.refresh = false
+                }
+            } else {
+                withAnimation {
+                    refresh.toggle()
+                }
+            }
+        }
     }
 }
 

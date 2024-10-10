@@ -14,8 +14,6 @@ struct HomeView: View {
     
     @FocusState var searchBarFocused: Bool
     
-    @State var refresh: Bool = false
-    
     var body: some View {
         
         ZStack (alignment: .bottom){
@@ -75,7 +73,7 @@ extension HomeView {
                 .transition(.scale)
             }
             ZStack{
-                
+                // MARK: Bottom bar background
                 Color(.clear)
                     .background(.thinMaterial)
                     .cornerRadius(50)
@@ -83,87 +81,13 @@ extension HomeView {
                 
                 HStack {
                     
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            vm.showOptions.toggle()
-                        }
-                        
-                    }, label: {
-                        Image(systemName: "ellipsis")
-                            .font(.headline)
-                            .fontWeight(.black)
-                            .fontDesign(.rounded)
-                            .foregroundColor(.primary)
-                            .padding(10)
-                            .background(
-                                Circle()
-                                    .fill(.regularMaterial)
-                                    .shadow(radius: 5)
-                            )
-                            .menuButtonAnimationn(value: $vm.showOptions)
-//                            .rotationEffect(Angle(
-//                                degrees: vm.showOptions ? -180 : 0))
-                    })
-                    .padding(.leading)
+                    menuButton
                     
-                    TextField("\(Image(systemName: "magnifyingglass")) Search", text: searchBarFocused ? $vm.websiteURL : $vm.urlHost)
-                        .foregroundStyle(.primary)
-                        .font(.headline)
-                        .multilineTextAlignment(searchBarFocused ? .leading : .center)
-                        .focused($searchBarFocused)
-                        .padding(.horizontal)
-                        .padding(.vertical, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color("textFieldBackgroundColor"))
-                                .shadow(radius: 5)
-                        )
-                        .submitLabel(.search)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .onSubmit {
-                            vm.loadURL()
-                            searchBarFocused = false
-                        }
-                        .padding(.trailing,
-                                 vm.keyboardHeight >= 0 || searchBarFocused ? 10 : 0)
+                    urlTextField
                     
-                    if vm.keyboardHeight > 0 || searchBarFocused{
-                        Button(action: {vm.websiteURL = ""}, label: {
-                            Image(systemName: "x.circle.fill")
-                                .font(.title3)
-                                .tint(.primary)
-                        })
-                        .transition(AnyTransition.asymmetric(insertion: .opacity.animation(.easeInOut(duration: 0.1).delay(0.25)), removal: .opacity.animation(.easeInOut(duration: 0.01))))
-                        .padding(.trailing)
-                    }
+                    refreshButton
                     
-                    Button {
-                        vm.loadURL()
-                        if #available(iOS 17.0, *) {
-                            withAnimation {
-                                refresh.toggle()
-                            } completion: {
-                                refresh = false
-                            }
-                        } else {
-                            withAnimation {
-                                refresh.toggle()
-                            }
-                        }
-
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                            .rotationEffect(Angle(degrees: refresh ? 360 : 0))
-                            .padding(5)
-                            .background()
-                            .clipShape(Circle())
-                        
-                    }
-                    .padding(.trailing)
                 }
-                
-
             }
             .onAppear { searchBarFocused = vm.searchBarFocused }
             .onChange(of: searchBarFocused) { vm.searchBarFocused = $0 }
@@ -176,6 +100,74 @@ extension HomeView {
         .keyboardHeight($vm.keyboardHeight)
         .animation(.easeInOut(duration: 0.2), value: vm.keyboardHeight)
         .offset(y: -vm.keyboardHeight)
+    }
+    
+    private var menuButton: some View {
+        Button(action: {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                vm.showOptions.toggle()
+            }
+            
+        }, label: {
+            Image(systemName: "ellipsis")
+                .font(.headline)
+                .fontWeight(.black)
+                .fontDesign(.rounded)
+                .foregroundColor(.primary)
+                .padding(12)
+                .background(
+                    Circle()
+                        .fill(.regularMaterial)
+                        .shadow(radius: 5)
+                )
+                .bounceAnimation(value: $vm.showOptions)
+        })
+        .padding(.leading)
+    }
+    
+    private var urlTextField: some View {
+        TextField("\(Image(systemName: "magnifyingglass")) Search", text: searchBarFocused ? $vm.websiteURL : $vm.urlHost)
+            .foregroundStyle(.primary)
+            .font(.headline)
+            .multilineTextAlignment(searchBarFocused ? .leading : .center)
+            .focused($searchBarFocused)
+            .padding(.horizontal)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color("textFieldBackgroundColor"))
+                    .shadow(radius: 5)
+            )
+            .submitLabel(.search)
+            .textInputAutocapitalization(.never)
+            .disableAutocorrection(true)
+            .onSubmit {
+                vm.loadURL()
+                searchBarFocused = false
+            }
+            .padding(.trailing,
+                     vm.keyboardHeight >= 0 || searchBarFocused ? 10 : 0)
+    }
+    
+    private var refreshButton: some View {
+        Button {
+            vm.refreshButtonAction()
+        } label: {
+            Image(systemName: vm.keyboardHeight > 0 || searchBarFocused ?
+                  "xmark" : "arrow.clockwise")
+            .font(.headline)
+            .fontDesign(.rounded)
+            .foregroundColor(.primary)
+            .padding(7)
+            .background(
+                Circle()
+                    .fill(.regularMaterial)
+                    .shadow(radius: 5)
+            )
+            .rotationEffect(Angle(degrees: vm.refresh ? 360 : 0))
+            .replaceTransition()
+        }
+        .padding(.trailing)
     }
 }
 
@@ -214,13 +206,44 @@ struct menuButtonAnimation: ViewModifier {
     }
 }
 
+struct BounceViewModifier: ViewModifier {
+    
+    @Binding var value: Bool
+    
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content
+                .symbolEffect(.bounce.down.byLayer, value: value)
+        }
+        else {
+            content
+        }
+    }
+}
+
+struct ReplaceViewModifier: ViewModifier {
+    
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content
+                .contentTransition(.symbolEffect(.replace))
+        }
+        else {
+            content
+        }
+    }
+}
+
 
 public extension View {
     func keyboardHeight(_ state: Binding<CGFloat>) -> some View {
         self.modifier(KeyboardProvider(keyboardHeight: state))
     }
-    func menuButtonAnimationn(value: Binding<Bool>) -> some View {
-        self.modifier(menuButtonAnimation(value: value))
+    func bounceAnimation(value: Binding<Bool>) -> some View {
+        self.modifier(BounceViewModifier(value: value))
+    }
+    func replaceTransition() -> some View {
+        self.modifier(ReplaceViewModifier())
     }
 }
 
