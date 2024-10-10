@@ -34,9 +34,11 @@ struct SettingsView: View {
                         .font(.headline)
                         .padding()
                         .padding(.horizontal)
+                        .frame(maxWidth: .infinity)
                         .background(.regularMaterial)
                         .cornerRadius(15)
                         .shadow(radius: 5)
+                        .padding(.horizontal)
                 })
                 .alert(isPresented: $showAlert) {
                     Alert(title: Text("Do you want to delete browsing history?"),

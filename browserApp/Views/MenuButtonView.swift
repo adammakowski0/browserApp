@@ -25,11 +25,14 @@ struct MenuButtonView: View {
                         .padding()
                         .padding(.horizontal)
                         .frame(width: 160)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(.thinMaterial)
-                                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
-                        )
+//                        .background(
+//                            RoundedRectangle(cornerRadius: 20)
+//                                .fill(.thinMaterial)
+//                                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+//                        )
+                        .background()
+                        .cornerRadius(30)
+                        .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 5)
                 }
                 if let url = URL(string: sharedURL) {
                     ShareLink(item: url){
@@ -41,18 +44,16 @@ struct MenuButtonView: View {
                         .padding()
                         .padding(.horizontal)
                         .frame(width: 160)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(.thinMaterial)
-                                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
-                        )
+                        .background()
+                        .cornerRadius(30)
+                        .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 5)
                     
                 }
             }
             .padding()
             .background(.thinMaterial)
             .cornerRadius(15)
-            .shadow(radius: 5)
+            .shadow(radius: 2)
 
     }
 }

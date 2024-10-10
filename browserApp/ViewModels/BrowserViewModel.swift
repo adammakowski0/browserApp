@@ -47,7 +47,7 @@ class BrowserViewModel: ObservableObject{
         }
         fetchData()
     }
-
+    
     func fetchData(){
         let request = NSFetchRequest<WebsiteEntity>(entityName: "WebsiteEntity")
         do{
@@ -110,7 +110,7 @@ class BrowserViewModel: ObservableObject{
             print(error)
         }
     }
-
+    
     func deleteFromHistory(website: WebsiteModel){
         websitesHistoryList.removeAll {$0.id == website.id}
         for entity in savedEntities {
@@ -153,7 +153,7 @@ struct WebView: UIViewRepresentable {
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             let offset = scrollView.contentOffset.y
             let scrollDirection = offset - lastOffset
-
+            
             parent.browserViewModel.searchBarFocused = false
             parent.browserViewModel.keyboardHeight = 0
             
@@ -182,7 +182,7 @@ struct WebView: UIViewRepresentable {
             webView.scrollView.bounces = false
             let title = webView.title ?? "No title"
             let host = webView.url?.host() ?? ""
-
+            
             if let currentURL = webView.url?.absoluteString {
                 DispatchQueue.main.async {
                     self.parent.browserViewModel.urlHost = host
@@ -190,13 +190,13 @@ struct WebView: UIViewRepresentable {
                     self.parent.browserViewModel.addToHistoryCore(url: currentURL, title: title, host: host, websiteID: UUID())
                 }
             }
-//            webView.evaluateJavaScript("document.body.style.backgroundColor = 'orange'")
-//            webView.evaluateJavaScript("document.body.style.backgroundColor") { (result, error) in
-//                if let colorString = result as? String {
-//                    self.parent.browserViewModel.backgroundColor = UIColor(hex: colorString) ?? .white
-//                    print(self.parent.browserViewModel.backgroundColor)
-//                }
-//            }
+            //            webView.evaluateJavaScript("document.body.style.backgroundColor = 'orange'")
+            //            webView.evaluateJavaScript("document.body.style.backgroundColor") { (result, error) in
+            //                if let colorString = result as? String {
+            //                    self.parent.browserViewModel.backgroundColor = UIColor(hex: colorString) ?? .white
+            //                    print(self.parent.browserViewModel.backgroundColor)
+            //                }
+            //            }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.parent.browserViewModel.isLoading = false
@@ -238,10 +238,26 @@ struct WebView: UIViewRepresentable {
     }
     
     func formatURL(_ urlString: String) -> URL? {
+
+        let TLDList: Set<String> = [
+            "com", "pl", "eu", "org", "net", "gov", "edu", "info", "co", "io", "uk", "de", "fr", "it", "jp", "cn", "us", "co", "biz", "int"
+        ]
+        
         var formattedURLString = urlString
         if !urlString.lowercased().hasPrefix("http://") && !urlString.lowercased().hasPrefix("https://") {
             formattedURLString = "https://" + urlString
         }
-        return URL(string: formattedURLString)
+        if let url = URL(string: formattedURLString), let host = url.host {
+            let urlComponents = host.components(separatedBy: ".")
+            if urlComponents.count > 1 {
+                let urlTLD = urlComponents.last!.lowercased()
+                if TLDList.contains(urlTLD) {
+                    return url
+                }
+            }
+        }
+        let googleSearch = urlString.replacingOccurrences(of: " ", with: "+")
+        let googleSearchURLString = "https://www.google.com/search?q=" + googleSearch
+        return URL(string: googleSearchURLString)
     }
 }

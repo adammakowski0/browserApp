@@ -77,7 +77,7 @@ extension HomeView {
                 Color(.clear)
                     .background(.thinMaterial)
                     .cornerRadius(50)
-                    .shadow(color: .black.opacity(0.5), radius: 10, x: 0.0, y: 0.0)
+                    .shadow(color: .black.opacity(0.3), radius: 10, x: 0.0, y: 4.0)
                 
                 HStack {
                     
@@ -95,7 +95,7 @@ extension HomeView {
                             .padding(5)
                             .background(
                                 Circle()
-                                    .fill(.thinMaterial)
+                                    .fill(.regularMaterial)
                                     .shadow(radius: 5)
                             )
                             .rotationEffect(Angle(
@@ -112,8 +112,9 @@ extension HomeView {
                         .padding(.vertical, 4)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(Color("textFieldBackgroundColor")))
-                        .shadow(radius: 10)
+                                .fill(Color("textFieldBackgroundColor"))
+                                .shadow(radius: 5)
+                        )
                         .submitLabel(.search)
                         .textInputAutocapitalization(.never)
                         .disableAutocorrection(true)
