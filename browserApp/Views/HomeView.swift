@@ -87,19 +87,20 @@ extension HomeView {
                         }
                         
                     }, label: {
-                        Image(systemName: "arrow.up")
-                            .font(.title3)
+                        Image(systemName: "ellipsis")
+                            .font(.headline)
                             .fontWeight(.black)
                             .fontDesign(.rounded)
                             .foregroundColor(.primary)
-                            .padding(5)
+                            .padding(10)
                             .background(
                                 Circle()
                                     .fill(.regularMaterial)
                                     .shadow(radius: 5)
                             )
-                            .rotationEffect(Angle(
-                                degrees: vm.showOptions ? -180 : 0))
+                            .menuButtonAnimationn(value: $vm.showOptions)
+//                            .rotationEffect(Angle(
+//                                degrees: vm.showOptions ? -180 : 0))
                     })
                     .padding(.leading)
                     
@@ -169,10 +170,28 @@ struct KeyboardProvider: ViewModifier {
     }
 }
 
+struct menuButtonAnimation: ViewModifier {
+    
+    @Binding var value: Bool
+    
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content
+                .symbolEffect(.bounce.down.byLayer, value: value)
+        }
+        else {
+            content
+        }
+    }
+}
+
 
 public extension View {
     func keyboardHeight(_ state: Binding<CGFloat>) -> some View {
         self.modifier(KeyboardProvider(keyboardHeight: state))
+    }
+    func menuButtonAnimationn(value: Binding<Bool>) -> some View {
+        self.modifier(menuButtonAnimation(value: value))
     }
 }
 
