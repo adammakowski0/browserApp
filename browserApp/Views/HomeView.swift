@@ -14,6 +14,8 @@ struct HomeView: View {
     
     @FocusState var searchBarFocused: Bool
     
+    @State var refresh: Bool = false
+    
     var body: some View {
         
         ZStack (alignment: .bottom){
@@ -134,7 +136,33 @@ extension HomeView {
                         .transition(AnyTransition.asymmetric(insertion: .opacity.animation(.easeInOut(duration: 0.1).delay(0.25)), removal: .opacity.animation(.easeInOut(duration: 0.01))))
                         .padding(.trailing)
                     }
+                    
+                    Button {
+                        vm.loadURL()
+                        if #available(iOS 17.0, *) {
+                            withAnimation {
+                                refresh.toggle()
+                            } completion: {
+                                refresh = false
+                            }
+                        } else {
+                            withAnimation {
+                                refresh.toggle()
+                            }
+                        }
+
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .rotationEffect(Angle(degrees: refresh ? 360 : 0))
+                            .padding(5)
+                            .background()
+                            .clipShape(Circle())
+                        
+                    }
+                    .padding(.trailing)
                 }
+                
+
             }
             .onAppear { searchBarFocused = vm.searchBarFocused }
             .onChange(of: searchBarFocused) { vm.searchBarFocused = $0 }
@@ -142,6 +170,7 @@ extension HomeView {
             .padding(.vertical, 25)
             .padding(.horizontal, 20)
             .frame(height: 100)
+            
         }
         .keyboardHeight($vm.keyboardHeight)
         .animation(.easeInOut(duration: 0.2), value: vm.keyboardHeight)
