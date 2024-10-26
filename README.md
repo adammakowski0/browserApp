@@ -1,0 +1,1 @@
+[![Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917](https://github.com/user-attachments/assets/40bd39e5-43b0-4de0-9295-d752b975bedb)](https://apps.apple.com/pl/app/quicksurf-simple-and-private/id6736664772?l=pl)
